@@ -1,0 +1,40 @@
+{
+    "logging": {
+        "format": "%(asctime)s %(levelname)s[%(name)s]: %(message)s",
+        "level": "INFO",
+        "filename": "stdout"
+    },
+    "discord": {
+        "token": "EXAMPLE",
+        "username": "nickname"
+    },
+    "telegram": {
+        "token": "EXAMPLE",
+        "username": "fullname"
+    },
+    "main": {
+        "format": {
+            "normal": "[{shortName} - {username}] {message}",
+            "reply": "[{shortName} - {username}] Re {replyUser} \"{replyMSG}\": {message}",
+            "forward": "[{shortName} - {username}] Fwd {fowardUser} \"{fowardMSG}\": {message}",
+            "inlineBot": "[{shortName} - {username}] via {inlineBot}: {message}",
+            "DCslash": "[{shortName} - {username}] per {executer} \"{command}\": {message}"
+        },
+        "relays": [
+            ["telegram/-12345678","discord/12345678"]
+        ],
+        "relaynames": {
+            "telegram/12345678": ["S","LongName"]
+        }
+    },
+    "extensions": {
+        "wikilinks": {
+            "enabled": false,
+            "settings": {
+                "telegram/12345678": {
+                    "apiphp": "https://zh.wikipedia.org/w/api.php"
+                }
+            }
+        }
+    }
+}
