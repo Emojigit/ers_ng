@@ -48,7 +48,7 @@ async def Ton_message(message: t.types.Message):
     reference = message.reply_to_message # might be None
     source = "telegram/{}".format(channelID)
     output = ""
-    content = message.text or ""
+    content = t.utils.markdown.text(message.text or "")
     media = []
     if message.contact:
         num = phonenumbers.parse("+" + message.contact.phone_number,None)
@@ -122,6 +122,7 @@ async def Ton_message(message: t.types.Message):
         await download(message.photo[len(message.photo) - 1])
     if message.sticker:
         await download(message.sticker)
+        output = config["main"]["outputformats"]["sticker"].format(emoji=message.sticker.emoji)
     if message.video:
         await download(message.video)
     if message.video_note:
@@ -147,9 +148,9 @@ async def Ton_message(message: t.types.Message):
                     source_r = "telegram/{}".format(reference.from_user.id)
                     lT.info("Reply source {}".format(source_r))
                     runame = buildUNAME(reference.from_user)
-                    display_r = reference.md_text[:10] + (reference.md_text[10:] and '..')
-                    if source_r in config["main"]["detectname"]:
-                        tmp_name_r = re.match(config["main"]["detectname"][source_r],reference.md_text)
+                    display_r = (reference.text[:10] + (reference.text[10:] and '..') if reference.text else "")
+                    if source_r in config["main"]["detectname"] and reference.text:
+                        tmp_name_r = re.match(config["main"]["detectname"][source_r],reference.text)
                         if tmp_name_r != None:
                             runame = tmp_name_r[1]
                             display_r = tmp_name_r[2][:10] + (tmp_name_r[2][10:] and '..')
@@ -171,7 +172,7 @@ async def Ton_message(message: t.types.Message):
                             b.write(a[0].read())
                             a[0].seek(0)
                             b.seek(0)
-                            await msg.answer_document(document=b,disable_notification=True,reply=True)
+                            await msg.answer_document(document=t.types.input_file.InputFile(b,filename=a[1]),disable_notification=True,reply=True)
                 elif platform == "discord":
                     files = []
                     for a in media:
@@ -232,7 +233,7 @@ class cD(d.Client):
                                 b.write(a[0].read())
                                 a[0].seek(0)
                                 b.seek(0)
-                                await msg.answer_document(document=b,disable_notification=True,reply=True)
+                                await msg.answer_document(document=t.types.input_file.InputFile(b,filename=a[1]),disable_notification=True,reply=True)
                     elif platform == "discord":
                         files = []
                         for a in media:
