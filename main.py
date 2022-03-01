@@ -271,7 +271,7 @@ class cD(d.Client):
 D = cD() # a discord client object
 
 class ERS_Handler(logging.Handler):
-    def emit(self,record):
+    async def _emit(self,record):
         msg = self.format(record)
         try:
             bot_tg.set_current(bot_tg)
@@ -284,6 +284,9 @@ class ERS_Handler(logging.Handler):
             return True
         except:
             return False
+    def emit(*args,**kwargs):
+        return await self._emit(*args,**kwargs)
+
 
 
 
