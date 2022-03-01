@@ -139,8 +139,8 @@ async def Ton_message(message: t.types.Message):
     if message.caption:
         output = config["main"]["outputformats"]["caption"].format(caption=message.caption) + " " + output
 
-    lT.info("received message by `{}` content `{}` from `{}`".format(author.id,output,source))
-    lT.info("raw {}".format(message))
+    lT.debug("received message by `{}` content `{}` from `{}`".format(author.id,output,source))
+    lT.debug("raw {}".format(message))
     for x in config["main"]["relays"]:
         if source in x:
             for y in x:
@@ -154,7 +154,7 @@ async def Ton_message(message: t.types.Message):
                     return s
                 if reference:
                     source_r = "telegram/{}".format(reference.from_user.id)
-                    lT.info("Reply source {}".format(source_r))
+                    lT.debug("Reply source {}".format(source_r))
                     runame = buildUNAME(reference.from_user)
                     display_r = (reference.text[:10] + (reference.text[10:] and '..') if reference.text else "")
                     if source_r in config["main"]["detectname"] and reference.text:
@@ -171,8 +171,9 @@ async def Ton_message(message: t.types.Message):
                     final = formats["inlineBot"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),inlineBot=escape(iBOT_name),message=output)
                 else:
                     final = formats["normal"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),message=output)
-                lT.info("Message {}".format(final))
-                lT.info("Documents {}".format(media))
+                lT.debug("Message {}".format(final))
+                lT.debug("Documents {}".format(media))
+                lT.info("Sending `{}` to `{}`".format(final,y))
                 if platform == "telegram":
                     msg = await bot_tg.send_message(chat_id=id,text=final,parse_mode="MarkdownV2")
                     for a in media:
@@ -209,10 +210,10 @@ class cD(d.Client):
         reference = message.reference and message.reference.resolved # might be None
         source = "discord/{}".format(message.channel.id)
         if author == self.user: return
-        lD.info("received message by `{}` content `{}` from `{}`".format(author.id,content,source))
+        lD.debug("received message by `{}` content `{}` from `{}`".format(author.id,content,source))
         for x in config["main"]["nofwd_prefix"]:
             if content.startswith(x):
-                lD.info("Have NOFWD prefix")
+                lD.debug("Have NOFWD prefix")
                 return
         media = []
         async def download(y):
@@ -236,7 +237,7 @@ class cD(d.Client):
                         return s
                     if reference:
                         source_r = "discord/{}".format(reference.author.id)
-                        lD.info("Reply source {}".format(source_r))
+                        lD.debug("Reply source {}".format(source_r))
                         name_r = (reference.author.display_name if config["discord"]["username"] == "nickname" else reference.author.name)
                         display_r = reference.content[:10] + (reference.content[10:] and '..')
                         if source_r in config["main"]["detectname"]:
@@ -247,6 +248,7 @@ class cD(d.Client):
                         message = formats["reply"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),replyUser=escape(name_r),replyMSG=escape(display_r),message=escape(content))
                     else:
                         message = formats["normal"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),message=escape(content))
+                    lD.info("Sending `{}` to `{}`".format(message,y))
                     if platform == "telegram":
                         msg = await bot_tg.send_message(chat_id=id,text=message,parse_mode="MarkdownV2")
                         for a in media:
@@ -277,15 +279,16 @@ class ERS_Handler(logging.Handler):
             bot_tg.set_current(bot_tg)
             for x in config["logging"]["logging_channels"]:
                 platform, id = x.split("/",1)
+                id = int(id)
                 if platform == "telegram":
                     msg = await bot_tg.send_message(chat_id=id,text=msg)
                 elif platform == "discord":
-                    await self.get_channel(id).send(content=msg)
+                    await D.get_channel(id).send(content=msg)
             return True
         except:
-            return False
-    def emit(*args,**kwargs):
-        return asyncio.run(self._emit(*args,**kwargs))
+            raise
+    def emit(self,record):
+        return asyncio.get_event_loop().create_task(self._emit(record))
 
 
 
@@ -293,12 +296,14 @@ class ERS_Handler(logging.Handler):
 # Run the telegram and discord bot
 # Goal: both bot run on the same time
 def main():
+    handler = ERS_Handler(level=getattr(logging,config["logging"]["level"].upper()))
+    handler.setFormatter(logging.Formatter(fmt=config["logging"]["format"]))
+    lD.addHandler(handler)
+    lT.addHandler(handler)
+    lA.addHandler(handler)
     loop = asyncio.get_event_loop()
     loop.create_task(D.start(token_dpy))
     t.executor.start_polling(Tdp)
-    lD.addHandler(ERS_Handler())
-    lT.addHandler(ERS_Handler())
-    lA.addHandler(ERS_Handler())
 main()
 
 
