@@ -48,8 +48,12 @@ async def Ton_message(message: t.types.Message):
     reference = message.reply_to_message # might be None
     source = "telegram/{}".format(channelID)
     output = ""
-    content = t.utils.markdown.text(message.text or "")
+    content = message.text or ""
     media = []
+    for x in config["main"]["nofwd_prefix"]:
+        if content.startswith(x):
+            lD.info("Have NOFWD prefix")
+            return
     if message.contact:
         num = phonenumbers.parse("+" + message.contact.phone_number,None)
         if phonenumbers.is_valid_number(num):
@@ -206,6 +210,10 @@ class cD(d.Client):
         source = "discord/{}".format(message.channel.id)
         if author == self.user: return
         lD.info("received message by `{}` content `{}` from `{}`".format(author.id,content,source))
+        for x in config["main"]["nofwd_prefix"]:
+            if content.startswith(x):
+                lD.info("Have NOFWD prefix")
+                return
         media = []
         async def download(y):
             f = tempfile.TemporaryFile()
