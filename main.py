@@ -2,6 +2,7 @@ import logging, json, requests, asyncio, re, phonenumbers, tempfile, mimetypes, 
 import aiogram as t # Bot, Dispatcher, executor, types
 import discord as d
 from aiogram.utils import markdown as tMD
+from functools import wraps
 
 config = {}
 try:
@@ -16,9 +17,40 @@ logging.basicConfig(level=getattr(logging,config["logging"]["level"].upper()),fo
 formats = config["main"]["format"] # normal, reply, inlineBot, DCslash, forward
 lA = logging.getLogger("main")
 
+commands = {}
+
+def command(name):
+    def decorator(func):
+        commands[name] = func
+        return func
+    return decorator
+def cmdSEND(func):
+    @wraps(func)
+    async def wrapper(message,platform):
+        rstr = await func(message,platform)
+        if platform == "telegram":
+            await message.answer(text=t.utils.markdown.escape_md(rstr),reply=True,parse_mode="MarkdownV2")
+        elif platform == "discord":
+            await message.reply(rstr)
+    return wrapper
+
+start_msg = "This is the Emoji Relay Service NG bot.\nSource code: https://github.com/Emojigit/ers_ng\nLicense: GPLv3\nDeveloper's contact: "
+@command(name="start")
+async def Cstart(message, platform):
+    if platform == "telegram":
+        await message.answer(text=t.utils.markdown.escape_md(start_msg) + t.utils.markdown.link("Emojitelegram","https://t.me/emojiwiki"),reply=True,parse_mode="MarkdownV2")
+    elif platform == "discord":
+        await message.reply(start_msg + "<@!682376734883971102>")
+
+@command(name="help")
+@cmdSEND
+async def Chelp(message,platform):
+    return "Avaliable commands: " + (", ".join(commands.keys()))
+
 lT = logging.getLogger("Telegram")
 tT = config["telegram"]["token"]
 bot_tg = t.Bot(token=tT)
+bot_tg.set_current(bot_tg)
 Tdp = t.Dispatcher(bot_tg)
 def buildUNAME(user):
     try:
@@ -32,13 +64,11 @@ def buildUNAME(user):
         elif config["telegram"]["username"] == "firstname":
             return user.first_name
     return str(user.id)
-@Tdp.message_handler(commands=['start'])
-async def Tstart(message: t.types.Message):
-    author = message.from_user
-    channelID = message.chat.id
-    source = "telegram/{}".format(channelID)
-    lT.info("/start by `{}` from `{}`".format(author,source))
-    await message.answer("ERS NG!")
+for x in commands.keys():
+    @Tdp.message_handler(commands=[x])
+    async def HANDLER(message: t.types.Message):
+        lT.info("Command {} fired by {}".format(x,message.from_user.id))
+        return await commands[x](message,"telegram")
 async def Ton_message(message: t.types.Message):
     if message.is_command(): return
     channelID = message.chat.id
@@ -156,7 +186,10 @@ async def Ton_message(message: t.types.Message):
                 if reference:
                     source_r = "telegram/{}".format(reference.from_user.id)
                     lT.debug("Reply source {}".format(source_r))
-                    runame = buildUNAME(reference.from_user)
+                    rudata = reference.from_user
+                    if message.sender_chat:
+                        rudata = reference.sender_chat
+                    runame = buildUNAME(rudata)
                     display_r = (reference.text[:10] + (reference.text[10:] and '..') if reference.text else "")
                     if source_r in config["main"]["detectname"] and reference.text:
                         tmp_name_r = re.match(config["main"]["detectname"][source_r],reference.text)
@@ -204,7 +237,6 @@ class cD(d.Client):
     async def on_ready(self):
         lD.info("Discord: Username: `{0.name}` ID: `{0.id}`".format(self.user))
     async def on_message(self, message):
-        bot_tg.set_current(bot_tg)
         channelID = message.channel.id
         content = message.content
         author = message.author
@@ -212,6 +244,11 @@ class cD(d.Client):
         source = "discord/{}".format(message.channel.id)
         if author == self.user: return
         lD.debug("received message by `{}` content `{}` from `{}`".format(author.id,content,source))
+        for x in commands.keys():
+            if content.startswith("/" + x):
+                lD.info("Considered `{}` from `{}` by `{}` is a command.".format(content,source,author.id))
+                await commands[x](message,"discord")
+                return
         for x in config["main"]["nofwd_prefix"]:
             if content.startswith(x):
                 lD.debug("Have NOFWD prefix")
@@ -274,11 +311,12 @@ class cD(d.Client):
             c[0].close()
 D = cD() # a discord client object
 
+
+
 class ERS_Handler(logging.Handler):
     async def _emit(self,record):
         msg = self.format(record)
         try:
-            bot_tg.set_current(bot_tg)
             for x in config["logging"]["logging_channels"]:
                 platform, id = x.split("/",1)
                 id = int(id)
