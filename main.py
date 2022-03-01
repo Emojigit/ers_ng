@@ -285,7 +285,7 @@ class ERS_Handler(logging.Handler):
         except:
             return False
     def emit(*args,**kwargs):
-        return await self._emit(*args,**kwargs)
+        return asyncio.run(self._emit(*args,**kwargs))
 
 
 
