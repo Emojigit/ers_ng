@@ -203,10 +203,15 @@ class cD(d.Client):
         if author == self.user: return
         lD.info("received message by `{}` content `{}` from `{}`".format(author.id,content,source))
         media = []
-        for x in message.attachments:
+        async def download(y):
             f = tempfile.TemporaryFile()
-            await x.save(f)
-            media.append([f,x.filename])
+            await y.save(f)
+            media.append([f,y.filename])
+        for x in message.attachments:
+            await download(x)
+        for x in message.stickers:
+            if message.stickers.image_url != None:
+                await download(message.stickers.image_url)
         for x in config["main"]["relays"]:
             if source in x:
                 for y in x:
