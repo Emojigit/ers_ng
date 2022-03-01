@@ -173,7 +173,7 @@ async def Ton_message(message: t.types.Message):
     lT.debug("raw {}".format(message))
     for x in config["main"]["relays"]:
         if source in x:
-            lT.info("We will process `{}` from `{}` by `{}`".format(output,source,author.id))
+            lT.info("We will process `{}` from `{}` by `{}`, RAW `{}`".format(output,source,author.id,message))
             for y in x:
                 if source == y: continue
                 platform, id = y.split("/",1)
@@ -265,7 +265,7 @@ class cD(d.Client):
                 await download(message.stickers.image_url)
         for x in config["main"]["relays"]:
             if source in x:
-                lD.info("We will process `{}` from `{}` by `{}`".format(content,source,author.id))
+                lD.info("We will process `{}` from `{}` by `{}`, RAW `{}`".format(content,source,author.id,message))
                 for y in x:
                     if source == y: continue
                     platform, id = y.split("/",1)
