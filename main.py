@@ -65,9 +65,9 @@ async def Ton_message(message: t.types.Message):
         if message.poll.is_anonymous:
             infos.append("anonymous")
         if message.poll.allows_multiple_answers:
-            infos.append("multiple-choice")
+            infos.append("multiple\\-choice")
         if message.poll.open_period:
-            infos.append("auto-closing")
+            infos.append("auto\\-closing")
         if len(infos) == 0:
             infos.append("no flags")
         info = ", ".join(infos)
@@ -75,9 +75,9 @@ async def Ton_message(message: t.types.Message):
         for x in message.poll.options:
             questions.append(x.text)
         question = "\n".join(questions)
-        output = config["main"]["outputformats"]["poll"].format(type=message.poll.type,question=message.poll.question,info=info,options=question)
+        output = config["main"]["outputformats"]["poll"].format(type=message.poll.type,question=escape(message.poll.question),info=info,options=escape(question))
     elif message.venue:
-        output = config["main"]["outputformats"]["venue"].format(title=message.venue.title,address=message.venue.address)
+        output = config["main"]["outputformats"]["venue"].format(title=escape(message.venue.title),address=escape(message.venue.address))
     elif message.location:
         output = config["main"]["outputformats"]["location"].format(position="{},{}".format(message.location.longitude,message.location.latitude),horizontal_accuracy=(message.location.horizontal_accuracy != None and message.location.horizontal_accuracy or 0))
     elif message.new_chat_members:
