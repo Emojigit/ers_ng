@@ -270,27 +270,32 @@ class cD(d.Client):
             c[0].close()
 D = cD() # a discord client object
 
+class ERS_Handler(logging.Handler):
+    def emit(self,record):
+        msg = self.format(record)
+        try:
+            bot_tg.set_current(bot_tg)
+            for x in config["logging"]["logging_channels"]:
+                platform, id = x.split("/",1)
+                if platform == "telegram":
+                    msg = await bot_tg.send_message(chat_id=id,text=msg)
+                elif platform == "discord":
+                    await self.get_channel(id).send(content=msg)
+            return True
+        except:
+            return False
+
+
+
 # Run the telegram and discord bot
 # Goal: both bot run on the same time
-
-lA.info("Done, starting bots...")
-
-# GNOME's code
-"""
-async def main():
-    #exec_tg = t.executor.Executor(Tdp, skip_updates=True)
-    telegram_bot = Tdp.start_polling() #exec_tg.start()
-    print(dir(D))
-    discord_bot = D.start(token_dpy)
-
-    await asyncio.gather(telegram_bot, discord_bot)
-asyncio.run(main())
-"""
-# gogurt enjoyer's code
 def main():
     loop = asyncio.get_event_loop()
     loop.create_task(D.start(token_dpy))
     t.executor.start_polling(Tdp)
+    lD.addHandler(ERS_Handler())
+    lT.addHandler(ERS_Handler())
+    lA.addHandler(ERS_Handler())
 main()
 
 
