@@ -158,15 +158,15 @@ async def Ton_message(message: t.types.Message):
                         if tmp_name_r != None:
                             runame = tmp_name_r[1]
                             display_r = tmp_name_r[2][:10] + (tmp_name_r[2][10:] and '..')
-                    final = formats["reply"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),replyUser=escape(runame),replyMSG=escape(display_r),message=output)
+                    final = formats["reply"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),replyUser=escape(runame),replyMSG=escape(display_r),message=escape(output))
                 elif message.forward_from or message.forward_sender_name:
                     fwd_uname = buildUNAME(message.forward_from) if message.forward_from else message.forward_sender_name
-                    final = formats["forward"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),forwardUser=escape(fwd_uname),message=output)
+                    final = formats["forward"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),forwardUser=escape(fwd_uname),message=escape(output))
                 elif message.via_bot:
                     iBOT_name = buildUNAME(message.via_bot)
-                    final = formats["inlineBot"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),inlineBot=escape(iBOT_name),message=output)
+                    final = formats["inlineBot"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),inlineBot=escape(iBOT_name),message=escape(output))
                 else:
-                    final = formats["normal"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),message=output)
+                    final = formats["normal"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),message=escape(output))
                 lT.info("Message {}".format(final))
                 lT.info("Documents {}".format(media))
                 if platform == "telegram":
