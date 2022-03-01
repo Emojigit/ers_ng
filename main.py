@@ -158,15 +158,15 @@ async def Ton_message(message: t.types.Message):
                         if tmp_name_r != None:
                             runame = tmp_name_r[1]
                             display_r = tmp_name_r[2][:10] + (tmp_name_r[2][10:] and '..')
-                    final = formats["reply"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),replyUser=escape(runame),replyMSG=escape(display_r),message=escape(output))
+                    final = formats["reply"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),replyUser=escape(runame),replyMSG=escape(display_r),message=output)
                 elif message.forward_from or message.forward_sender_name:
                     fwd_uname = buildUNAME(message.forward_from) if message.forward_from else message.forward_sender_name
-                    final = formats["forward"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),forwardUser=escape(fwd_uname),message=escape(output))
+                    final = formats["forward"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),forwardUser=escape(fwd_uname),message=output)
                 elif message.via_bot:
                     iBOT_name = buildUNAME(message.via_bot)
-                    final = formats["inlineBot"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),inlineBot=escape(iBOT_name),message=escape(output))
+                    final = formats["inlineBot"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),inlineBot=escape(iBOT_name),message=output)
                 else:
-                    final = formats["normal"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),message=escape(output))
+                    final = formats["normal"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),message=output)
                 lT.info("Message {}".format(final))
                 lT.info("Documents {}".format(media))
                 if platform == "telegram":
@@ -236,9 +236,9 @@ class cD(d.Client):
                             if tmp_name_r != None:
                                 name_r = tmp_name_r[1]
                                 display_r = tmp_name_r[2][:10] + (tmp_name_r[2][10:] and '..')
-                        message = formats["reply"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),replyUser=escape(name_r),replyMSG=escape(display_r),message=content)
+                        message = formats["reply"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),replyUser=escape(name_r),replyMSG=escape(display_r),message=secape(content))
                     else:
-                        message = formats["normal"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),message=content)
+                        message = formats["normal"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),message=secape(content))
                     if platform == "telegram":
                         msg = await bot_tg.send_message(chat_id=id,text=message,parse_mode="MarkdownV2")
                         for a in media:
