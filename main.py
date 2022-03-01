@@ -238,7 +238,7 @@ class cD(d.Client):
                                 display_r = tmp_name_r[2][:10] + (tmp_name_r[2][10:] and '..')
                         message = formats["reply"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),replyUser=escape(name_r),replyMSG=escape(display_r),message=secape(content))
                     else:
-                        message = formats["normal"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),message=esecape(content))
+                        message = formats["normal"].format(shortName=("D" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(author.display_name if config["discord"]["username"] == "nickname" else author.name),message=escape(content))
                     if platform == "telegram":
                         msg = await bot_tg.send_message(chat_id=id,text=message,parse_mode="MarkdownV2")
                         for a in media:
