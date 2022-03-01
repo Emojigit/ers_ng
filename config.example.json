@@ -2,39 +2,52 @@
     "logging": {
         "format": "%(asctime)s %(levelname)s[%(name)s]: %(message)s",
         "level": "INFO",
-        "filename": "stdout"
+        "filename": "stdout",
+        "logging_channels": ["discord/123","telegram/123"]
     },
     "discord": {
-        "token": "EXAMPLE",
+        "token": "TOKEN",
         "username": "nickname"
     },
     "telegram": {
-        "token": "EXAMPLE",
+        "token": "TOKEN",
         "username": "fullname"
     },
     "main": {
         "format": {
-            "normal": "[{shortName} - {username}] {message}",
-            "reply": "[{shortName} - {username}] Re {replyUser} \"{replyMSG}\": {message}",
-            "forward": "[{shortName} - {username}] Fwd {fowardUser} \"{fowardMSG}\": {message}",
-            "inlineBot": "[{shortName} - {username}] via {inlineBot}: {message}",
-            "DCslash": "[{shortName} - {username}] per {executer} \"{command}\": {message}"
+            "normal": "\\[{shortName} \\- {username}\\] {message}",
+            "reply": "\\[{shortName} \\- {username}\\] Re {replyUser} \"{replyMSG}\": {message}",
+            "forward": "\\[{shortName} \\- {username}\\] Fwd {forwardUser}: {message}",
+            "inlineBot": "\\[{shortName} \\- {username}\\] via {inlineBot}: {message}",
+            "DCslash": "\\[{shortName} \\- {username}\\] per {executer} \"{command}\": {message}",
+            "dice": "\\[{shortName} \\- {username}\\] Rolling {dice}: {result}"
+        },
+        "outputformats": {
+            "contact": "\\<Contact `{phone}`\\>",
+            "dice": "\\<Dice {emoji} value `{value}`\\>",
+            "game": "\\<Game {title}: {description}\\>",
+            "poll": "\\<Poll `{type}`: {question}: {info}\\>\n{options}",
+            "venue": "\\<Venue {title}: {address}\\>",
+            "location": "\\<Location {position} uncertainty {horizontal_accuracy} meters\\>",
+            "caption": "\\<FileObject {caption}\\>",
+            "new_chat_members": "\\<Joined {users}\\>",
+            "left_chat_member": "\\<Left {user}\\>",
+            "pinned": "\\<Pinned \"{msg}\"\\>",
+            "sticker": "\\<Sticker {emoji}\\>"
         },
         "relays": [
-            ["telegram/-12345678","discord/12345678"]
+            ["telegram/123","discord/456","telegram/789"],
+            ["telegram/123","discord/456"]
         ],
         "relaynames": {
-            "telegram/12345678": ["S","LongName"]
-        }
-    },
-    "extensions": {
-        "wikilinks": {
-            "enabled": false,
-            "settings": {
-                "telegram/12345678": {
-                    "apiphp": "https://zh.wikipedia.org/w/api.php"
-                }
-            }
-        }
+            "telegram/123": ["T1","T1"],
+            "telegram/789": ["T2","T2"],
+            "discord/456": ["D1","D2"]
+        },
+        "detectname": {
+            "telegram/12345": "^\\[(.+?)\\] (.+)",
+            "discord/67890": "^\\[(.+?)\\] (.+)"
+        },
+        "nofwd_prefix": ["(NOFWD)"]
     }
 }

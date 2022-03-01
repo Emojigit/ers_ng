@@ -174,7 +174,7 @@ async def Ton_message(message: t.types.Message):
                     final = formats["normal"].format(shortName=("T" if source not in config["main"]["relaynames"] else config["main"]["relaynames"][source][0]),username=escape(uname),message=output)
                 lT.debug("Message {}".format(final))
                 lT.debug("Documents {}".format(media))
-                lT.info("Sending `{}` to `{}`".format(final,y))
+                lT.info("Sending `{}` with media `{}` to `{}`".format(final,media,y))
                 if platform == "telegram":
                     msg = await bot_tg.send_message(chat_id=id,text=final,parse_mode="MarkdownV2")
                     for a in media:
