@@ -53,16 +53,23 @@ bot_tg = t.Bot(token=tT)
 bot_tg.set_current(bot_tg)
 Tdp = t.Dispatcher(bot_tg)
 def buildUNAME(user):
+    RSTR = ""
     try:
         if user.title:
-            return user.title
+            RSTR = user.title
     except AttributeError:
         pass
     if user.first_name:
         if config["telegram"]["username"] == "fullname":
-            return user.first_name + ((" " + user.last_name) if user.last_name != None else "")
+            RSTR = user.first_name + ((" " + user.last_name) if user.last_name != None else "")
         elif config["telegram"]["username"] == "firstname":
-            return user.first_name
+            RSTR = user.first_name
+    cRSTR = RSTR
+    for x in ['ㅤ']:
+        cRSTR = cRSTR.replace(x,'')
+    lT.info("buildUNAME: in {} out {} cRSTR {}".format(user,RSTR,cRSTR))
+    if not(cRSTR.isspace()) and cRSTR != "":
+        return RSTR
     return str(user.id)
 for x in commands.keys():
     @Tdp.message_handler(commands=[x])
