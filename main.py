@@ -343,7 +343,7 @@ class ERS_Handler(logging.Handler):
 # Run the telegram and discord bot
 # Goal: both bot run on the same time
 def main():
-    handler = ERS_Handler(level=getattr(logging,config["logging"]["level"].upper()))
+    handler = ERS_Handler(level=logging.INFO) # FLOOD if logging.DEBUG is set
     handler.setFormatter(logging.Formatter(fmt=config["logging"]["format"]))
     lD.addHandler(handler)
     lT.addHandler(handler)
